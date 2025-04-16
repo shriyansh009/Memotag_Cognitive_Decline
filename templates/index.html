@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceMind – Cognitive Stress Detection</title>
+    <link rel="shortcut icon" href="{{ url_for('static',filename='images/MEMOTAG.png')}}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="{{ url_for('static',filename='style/index.css')}}">
+</head>
+<body>
+  
+  <div id="loader-wrapper">
+    <div class="loader"></div>
+  </div>
+
+  <iframe src="https://my.spline.design/liquidgradientabstractbackground-Teo1uDh39dg4Cz1PXGPRlSZe/" allowfullscreen></iframe>
+
+  <div class="content">
+    <form id="upload-form" method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data">
+        <label class="drop-zone" id="drop-zone">
+          <span>Drag and drop a .wav file here<br>or click to select</span>
+          <input type="file" name="file" id="file-input" accept=".wav">
+        </label>
+    </form>
+  </div>
+    
+  <a  class="links" href="{{ url_for('static', filename='sample/sample.wav') }}" download >
+    🎧 Download Sample Audio
+  </a>
+  <a href="{{ url_for('static', filename='sample/sample.wav') }}" download >
+    more
+  </a>
+
+      <script>
+        const dropZone = document.getElementById("drop-zone");
+        const fileInput = document.getElementById("file-input");
+        const form = document.getElementById("upload-form");
+    
+        dropZone.addEventListener("click", () => fileInput.click());
+    
+        fileInput.addEventListener("change", () => form.submit());
+    
+        dropZone.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          dropZone.classList.add("dragover");
+        });
+    
+        dropZone.addEventListener("dragleave", () => {
+          dropZone.classList.remove("dragover");
+        });
+    
+        dropZone.addEventListener("drop", (e) => {
+          e.preventDefault();
+          dropZone.classList.remove("dragover");
+    
+          const files = e.dataTransfer.files;
+          if (files.length > 0) {
+            fileInput.files = files;
+            form.submit();
+          }
+        });
+
+        window.addEventListener("load", function () {
+        const loader = document.getElementById("loader-wrapper");
+        loader.style.display = "none";
+          });
+          
+
+      </script>
+</body>
+</html>
