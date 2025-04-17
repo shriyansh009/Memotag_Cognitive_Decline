@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect ,url_for
+from flask import Flask, render_template, request, redirect ,url_for,Response
 import os
 from werkzeug.utils import secure_filename
 import uuid
@@ -67,5 +67,6 @@ def result():
         transcript=transcript
     )
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True,host="0.0.0.0")
