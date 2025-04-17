@@ -4,99 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceMind – Cognitive Stress Detection</title>
-    <link rel="stylesheet" href="{{ url_for('static',filename='style/result.css')}}">
-    <link rel="shortcut icon" href="{{ url_for('static',filename='images/MEMOTAG.png')}}" type="image/x-icon">
+    <link rel="stylesheet" href="{{ url_for('static',filename='style/result.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static',filename='images/MEMOTAG.png') }}" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" >
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                   Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    }
-  </style>
-  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                  Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  }
+</style>
+
 <body>
+  <div id="loader-wrapper">
+    <div class="loader"></div>
+  </div>
 
-    <div id="loader-wrapper">
-        <div class="loader"></div>
-    </div>
-    <div class="container mt-5">
-        <div class="card shadow-lg">
-          <div class="card-body">
-            <h3 class="card-title text-center mb-4">Analysis Results</h3>
-      
-            {% if transcript %}
-              <h5>Transcript:</h5>
-              <p class="border p-2 bg-light">{{ transcript }}</p>
-            {% endif %}
-      
-            {% if summary %}
-              <h5>Summary:</h5>
-              <p class="border p-2 bg-light">{{ summary }}</p>
-            {% endif %}
-      
-            {% if hesitations %}
-              <h5>Hesitation Markers Detected:</h5>
-              <ul class="list-group mb-3">
-                {% for i, word in hesitations %}
-                  <li class="list-group-item">Word '<strong>{{ word }}</strong>' at position {{ i }}</li>
-                {% endfor %}
-              </ul>
-            {% endif %}
-      
-            {% if features %}
-              <h5>Feature Table:</h5>
-              <div class="table-responsive">
-                <table class="table table-striped table-bordered">
-                  <thead class="thead-dark">
-                    <tr>
-                      <th>Feature</th>
-                      <th>Value</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for k, v in features.items() %}
-                      <tr>
-                        <td>{{ k }}</td>
-                        <td>{{ v }}</td>
-                      </tr>
-                    {% endfor %}
-                  </tbody>
-                </table>
-              </div>
+  <div class="container mt-5">
+    <div class="card shadow-lg">
+      <div class="card-body">
+        <h3 class="card-title text-center mb-4">Analysis Results</h3>
 
-      
-            <h5>Risk Score:</h5>
-            <canvas id="riskChart" width="100" height="50"></canvas>
-            <script>
-                var ctx = document.getElementById('riskChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Risk Score'],
-                        datasets: [{
-                            label: 'Level: {{ risk_level }}',
-                            data: [{{ risk_score }}],
-                            backgroundColor: ['{{ "red" if risk_level=="High" else "orange" if risk_level=="Moderate" else "green" }}']
-                        }]
-                    },
-                    options: {
-                        scales: { y: { beginAtZero: true, max: 3 } }
-                    }
-                });
-            </script>
+        {% if transcript %}
+          <h5>Transcript:</h5>
+          <p class="border p-2 bg-light">{{ transcript }}</p>
         {% endif %}
+
+        {% if summary %}
+          <h5>Summary:</h5>
+          <p class="border p-2 bg-light">{{ summary }}</p>
+        {% endif %}
+
+        {% if hesitations %}
+          <h5>Hesitation Markers Detected:</h5>
+          <ul class="list-group mb-3">
+            {% for i, word in hesitations %}
+              <li class="list-group-item">Word '<strong>{{ word }}</strong>' at position {{ i }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if features %}
+          <h5>Feature Table:</h5>
+          <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+              <thead class="thead-dark">
+                <tr>
+                  <th>Feature</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for k, v in features.items() %}
+                  <tr>
+                    <td>{{ k.replace("_", " ").title() }}</td>
+                    <td>{{ v }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-        </div>
+
+          <h5 class="mt-4">Cognitive Stress Risk Level:</h5>
+          <div class="alert 
+            {% if risk_level == 'High' %}alert-danger
+            {% elif risk_level == 'Moderate' %}alert-warning
+            {% else %}alert-success{% endif %}">
+            Risk Level: <strong>{{ risk_level }}</strong> | Score: <strong>{{ risk_score }}</strong>
+          </div>
+
+          <canvas id="riskChart" width="100" height="50"></canvas>
+          <script>
+            var ctx = document.getElementById('riskChart').getContext('2d');
+            new Chart(ctx, {
+              type: 'bar',
+              data: {
+                labels: ['Risk Score'],
+                datasets: [{
+                  label: 'Level: {{ risk_level }}',
+                  data: [{{ risk_score }}],
+                  backgroundColor: ['{{ "red" if risk_level=="High" else "orange" if risk_level=="Moderate" else "green" }}']
+                }]
+              },
+              options: {
+                scales: { y: { beginAtZero: true, max: 3 } }
+              }
+            });
+          </script>
+        {% endif %}
       </div>
-    
-    <script>
-          window.addEventListener("load", function () {
-        const loader = document.getElementById("loader-wrapper");
-        loader.style.display = "none";
-          });
-    </script>
+    </div>
+  </div>
+
+  <script>
+    window.addEventListener("load", function () {
+      document.getElementById("loader-wrapper").style.display = "none";
+    });
+  </script>
 </body>
 </html>
-

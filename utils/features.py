@@ -2,8 +2,11 @@ import whisper
 import librosa
 import numpy as np
 import re
-import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+import pandas as pd
 
 # nltk.download('punkt')
 model = whisper.load_model("base")
@@ -54,3 +57,22 @@ def summarize_text(text):
 def find_hesitations(text):
     words = word_tokenize(text.lower())
     return [(i, word) for i, word in enumerate(words) if word in FILLERS]
+
+def analyze_clustering(feature_list):
+    df = pd.DataFrame(feature_list)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(df)
+
+    kmeans = KMeans(n_clusters=2, random_state=42)
+    labels = kmeans.fit_predict(X_scaled)
+    df['cluster'] = labels
+
+    # Optional: Plotting 2D clustering (you can pick any two features)
+    plt.figure(figsize=(8, 5))
+    plt.scatter(df["speech_rate"], df["pitch_variability"], c=labels, cmap='viridis')
+    plt.xlabel("Speech Rate")
+    plt.ylabel("Pitch Variability")
+    plt.title("Clustering of Audio Samples")
+    plt.show()
+
+    return df
