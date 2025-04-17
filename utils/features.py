@@ -6,7 +6,7 @@ import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 # nltk.download('punkt')
-model = whisper.load_model("base")
+model = whisper.load_model("tiny")
 FILLERS = [
     "uh", "um", "er", "ah", "like", "you know", "I mean", "sort of",
     "kind of", "actually", "basically", "right", "well", "so", "huh",
