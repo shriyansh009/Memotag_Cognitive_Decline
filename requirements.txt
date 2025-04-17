@@ -1,13 +1,14 @@
 flask==2.3.3
 werkzeug==2.3.7
 openai-whisper==20230314
+torch==2.0.1
+triton==2.0.0
 librosa==0.10.1
 numpy==1.24.4
 nltk==3.8.1
-torch==2.1.0 
-scipy==1.11.4 
-soundfile==0.12.1 
-typing-extensions==4.8.0  
+scipy==1.11.4
+soundfile==0.12.1
+typing-extensions==4.8.0
 
 
 
