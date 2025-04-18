@@ -1,4 +1,4 @@
-import whisper
+import faster_whisper
 import librosa
 import numpy as np
 import re
@@ -8,8 +8,9 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import pandas as pd
 
-# nltk.download('punkt')
-model = whisper.load_model("base")
+# Load the faster-whisper model (use "base" or any other model size)
+model = faster_whisper.WhisperModel("base")
+
 FILLERS = [
     "uh", "um", "er", "ah", "like", "you know", "I mean", "sort of",
     "kind of", "actually", "basically", "right", "well", "so", "huh",
@@ -18,8 +19,9 @@ FILLERS = [
 ]
 
 def compute_features(file_path, return_text=False):
-    result = model.transcribe(file_path)
-    text = result["text"]
+    # Transcribe using faster-whisper
+    segments, info = model.transcribe(file_path)
+    text = " ".join([segment.text for segment in segments])  # Combine the segments into a full transcript
     words = word_tokenize(text.lower())
     total_words = len(words)
     fillers = [w for w in words if w in FILLERS]
