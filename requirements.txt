@@ -18,3 +18,4 @@ tqdm==4.67.1
 regex==2024.11.6
 
 nltk==3.9.1
+matplotlib==3.10.1
