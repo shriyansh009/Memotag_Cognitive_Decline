@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for ,jsonify
 import os
 from werkzeug.utils import secure_filename
 import uuid
@@ -6,6 +6,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from utils.features import compute_features, summarize_text, find_hesitations
+import numpy as np
 
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
@@ -95,6 +96,47 @@ def result():
         hesitations=hesitations,
         transcript=transcript
     )
+
+@app.route('/api/analyze', methods=['POST'])
+def analyze_api():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file uploaded'}), 400
+
+    file = request.files['file']
+    if not file or not file.filename.endswith('.wav'):
+        return jsonify({'error': 'Invalid file format, only .wav supported'}), 400
+
+    filename = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+    filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(filepath)
+
+    try:
+        features, transcript = compute_features(filepath, return_text=True)
+        summary = summarize_text(transcript)
+        hesitations = find_hesitations(transcript)
+        risk_score, risk_level = calculate_risk(features)
+
+        def convert_np(obj):
+            if isinstance(obj, (np.integer, np.floating)):
+                return obj.item()
+            elif isinstance(obj, dict):
+                return {k: convert_np(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [convert_np(i) for i in obj]
+            return obj
+
+
+        return jsonify({
+            'filename': filename,
+            'transcript': transcript,
+            'summary': summary,
+            'hesitations': hesitations,
+            'features': convert_np(features),
+            'risk_score': risk_score,
+            'risk_level': risk_level
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500    
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0")
